@@ -3,9 +3,12 @@ package com.vp.list.viewmodel;
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule;
 import androidx.lifecycle.Observer;
 
+import com.vp.list.model.ListItem;
 import com.vp.list.model.SearchResponse;
 import com.vp.list.service.SearchService;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -54,4 +57,24 @@ public class ListViewModelTest {
         verify(mockObserver).onChanged(SearchResult.inProgress());
     }
 
+    @Test
+    public void shouldReturnSuccessState() {
+        //given
+        SearchService searchService = mock(SearchService.class);
+        SearchResponse searchResponse = mock(SearchResponse.class);
+        List<ListItem> listItems = new ArrayList<>();
+        when(searchResponse.getSearch()).thenReturn(listItems);
+        when(searchService.search(anyString(), anyInt())).thenReturn(Calls.response(searchResponse));
+        ListViewModel listViewModel = new ListViewModel(searchService);
+        Observer<SearchResult> mockObserver = (Observer<SearchResult>) mock(Observer.class);
+        listViewModel.observeMovies().observeForever(mockObserver);
+
+        //when
+        listViewModel.searchMoviesByTitle("title", 1);
+
+        //then
+
+        assertThat(listViewModel.observeMovies().getValue().getListState()).isEqualTo(ListState.LOADED);
+        verify(mockObserver).onChanged(SearchResult.success(listItems,0));
+    }
 }
