@@ -8,6 +8,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.GridLayoutManager;
@@ -41,6 +42,7 @@ public class ListFragment extends Fragment implements GridPagingScrollListener.L
     private ProgressBar progressBar;
     private TextView errorTextView;
     private String currentQuery = "Interview";
+    private SwipeRefreshLayout mSwipeRefreshLayout;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -62,6 +64,7 @@ public class ListFragment extends Fragment implements GridPagingScrollListener.L
         viewAnimator = view.findViewById(R.id.viewAnimator);
         progressBar = view.findViewById(R.id.progressBar);
         errorTextView = view.findViewById(R.id.errorText);
+        mSwipeRefreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.swiperefresh);
 
         if (savedInstanceState != null) {
             currentQuery = savedInstanceState.getString(CURRENT_QUERY);
@@ -69,7 +72,8 @@ public class ListFragment extends Fragment implements GridPagingScrollListener.L
 
         initBottomNavigation(view);
         initList();
-        listViewModel.observeMovies().observe(this, searchResult -> {
+        initSwipeRefreshLayout();
+        listViewModel.observeMovies().observe(this.getViewLifecycleOwner(), searchResult -> {
             if (searchResult != null) {
                 handleResult(listAdapter, searchResult);
             }
@@ -111,6 +115,7 @@ public class ListFragment extends Fragment implements GridPagingScrollListener.L
 
     private void showList() {
         viewAnimator.setDisplayedChild(viewAnimator.indexOfChild(recyclerView));
+        mSwipeRefreshLayout.setRefreshing(false);
     }
 
     private void showError() {
@@ -143,6 +148,12 @@ public class ListFragment extends Fragment implements GridPagingScrollListener.L
         }
     }
 
+    private void initSwipeRefreshLayout() {
+        mSwipeRefreshLayout.setOnRefreshListener(() -> {
+            refresh();
+        });
+    }
+
     @Override
     public void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
@@ -160,6 +171,14 @@ public class ListFragment extends Fragment implements GridPagingScrollListener.L
         listAdapter.clearItems();
         listViewModel.searchMoviesByTitle(query, 1);
         showProgressBar();
+    }
+
+    public void refresh(){
+        if (!mSwipeRefreshLayout.isRefreshing()) {
+            mSwipeRefreshLayout.setRefreshing(true);
+        }
+
+        listViewModel.searchMoviesByTitle(currentQuery, 1);
     }
 
     @Override

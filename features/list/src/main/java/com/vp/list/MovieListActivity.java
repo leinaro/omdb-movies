@@ -7,6 +7,8 @@ import android.view.MenuItem;
 import android.view.inputmethod.EditorInfo;
 import android.widget.SearchView;
 
+import androidx.annotation.NonNull;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import javax.inject.Inject;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -67,6 +69,15 @@ public class MovieListActivity extends AppCompatActivity implements HasAndroidIn
         });
 
         return true;
+    }
+
+    @Override public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        if (item.getItemId() == R.id.menu_refresh) {
+            ListFragment listFragment = (ListFragment) getSupportFragmentManager().findFragmentByTag(ListFragment.TAG);
+            listFragment.refresh();
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     @Override

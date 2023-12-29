@@ -46,6 +46,9 @@ dependencies {
     //architecture components
     implementation "androidx.lifecycle:lifecycle-extensions:$rootProject.lifecycle"
 
+    //ui
+    implementation "androidx.swiperefreshlayout:swiperefreshlayout:1.2.0-alpha01"
+
     //support library
     implementation "androidx.appcompat:appcompat:$rootProject.supportLibraryVersion"
     implementation "androidx.recyclerview:recyclerview:$rootProject.recyclerView"
