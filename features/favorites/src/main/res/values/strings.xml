@@ -1,4 +1,5 @@
 <resources>
     <string name="app_name">favorites</string>
     <string name="activity_label">Favorites</string>
+  <string name="data_loading_error">Data loading error</string>
 </resources>

@@ -4,6 +4,7 @@ import androidx.annotation.NonNull;
 
 import com.google.gson.annotations.SerializedName;
 
+import com.vp.coreui.model.ListItem;
 import java.util.List;
 
 import static java.util.Collections.emptyList;

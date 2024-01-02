@@ -1,4 +1,4 @@
-package com.vp.list;
+package com.vp.coreui;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -15,7 +15,7 @@ public class GridPagingScrollListener extends RecyclerView.OnScrollListener {
     private boolean isLastPage = false;
     private boolean isLoading = false;
 
-    GridPagingScrollListener(@NonNull final GridLayoutManager layoutManager) {
+    public GridPagingScrollListener(@NonNull final GridLayoutManager layoutManager) {
         this.layoutManager = layoutManager;
     }
 

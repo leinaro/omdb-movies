@@ -1,4 +1,4 @@
-package com.vp.list;
+package com.vp.coreui;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -8,7 +8,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 
-import com.vp.list.model.ListItem;
+import com.vp.coreui.model.ListItem;
 
 import java.util.Collections;
 import java.util.List;
@@ -80,7 +80,7 @@ public class ListAdapter extends RecyclerView.Adapter<ListAdapter.ListViewHolder
         }
     }
 
-    interface OnItemClickListener {
+    public interface OnItemClickListener {
         void onItemClick(String imdbID);
     }
 }

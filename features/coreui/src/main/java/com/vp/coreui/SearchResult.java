@@ -1,6 +1,6 @@
-package com.vp.list.viewmodel;
+package com.vp.coreui;
 
-import com.vp.list.model.ListItem;
+import com.vp.coreui.model.ListItem;
 
 import java.util.Collections;
 import java.util.List;

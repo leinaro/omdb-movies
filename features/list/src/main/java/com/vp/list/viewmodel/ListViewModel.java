@@ -5,7 +5,8 @@ import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 import androidx.annotation.NonNull;
 
-import com.vp.list.model.ListItem;
+import com.vp.coreui.SearchResult;
+import com.vp.coreui.model.ListItem;
 import com.vp.list.model.SearchResponse;
 import com.vp.list.service.SearchService;
 

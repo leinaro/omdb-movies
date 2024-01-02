@@ -8,7 +8,6 @@ import android.view.inputmethod.EditorInfo;
 import android.widget.SearchView;
 
 import androidx.annotation.NonNull;
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import javax.inject.Inject;
 
 import androidx.appcompat.app.AppCompatActivity;

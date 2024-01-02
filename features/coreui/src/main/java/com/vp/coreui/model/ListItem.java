@@ -1,4 +1,4 @@
-package com.vp.list.model;
+package com.vp.coreui.model;
 
 import com.google.gson.annotations.SerializedName;
 

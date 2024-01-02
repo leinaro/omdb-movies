@@ -20,14 +20,16 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.ViewAnimator;
 
-import com.vp.list.viewmodel.SearchResult;
+import com.vp.coreui.GridPagingScrollListener;
+import com.vp.coreui.ListAdapter;
+import com.vp.coreui.SearchResult;
 import com.vp.list.viewmodel.ListViewModel;
 
 import javax.inject.Inject;
 
 import dagger.android.support.AndroidSupportInjection;
 
-public class ListFragment extends Fragment implements GridPagingScrollListener.LoadMoreItemsListener, ListAdapter.OnItemClickListener {
+public class ListFragment extends Fragment {
     public static final String TAG = "ListFragment";
     private static final String CURRENT_QUERY = "current_query";
 
@@ -96,7 +98,7 @@ public class ListFragment extends Fragment implements GridPagingScrollListener.L
 
     private void initList() {
         listAdapter = new ListAdapter();
-        listAdapter.setOnItemClickListener(this);
+        listAdapter.setOnItemClickListener(listListener);
         recyclerView.setAdapter(listAdapter);
         recyclerView.setHasFixedSize(true);
         GridLayoutManager layoutManager = new GridLayoutManager(getContext(),
@@ -105,7 +107,7 @@ public class ListFragment extends Fragment implements GridPagingScrollListener.L
 
         // Pagination
         gridPagingScrollListener = new GridPagingScrollListener(layoutManager);
-        gridPagingScrollListener.setLoadMoreItemsListener(this);
+        gridPagingScrollListener.setLoadMoreItemsListener(gridListener);
         recyclerView.addOnScrollListener(gridPagingScrollListener);
     }
 
@@ -160,12 +162,6 @@ public class ListFragment extends Fragment implements GridPagingScrollListener.L
         outState.putString(CURRENT_QUERY, currentQuery);
     }
 
-    @Override
-    public void loadMoreItems(int page) {
-        gridPagingScrollListener.markLoading(true);
-        listViewModel.searchMoviesByTitle(currentQuery, page);
-    }
-
     public void submitSearchQuery(@NonNull final String query) {
         currentQuery = query;
         listAdapter.clearItems();
@@ -181,9 +177,13 @@ public class ListFragment extends Fragment implements GridPagingScrollListener.L
         listViewModel.searchMoviesByTitle(currentQuery, 1);
     }
 
-    @Override
-    public void onItemClick(String imdbID) {
+    ListAdapter.OnItemClickListener listListener = imdbID -> {
         Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("app://movies/details?imdbID=" + imdbID));
         startActivity(intent);
-    }
+    };
+
+    GridPagingScrollListener.LoadMoreItemsListener gridListener = page -> {
+        gridPagingScrollListener.markLoading(true);
+        listViewModel.searchMoviesByTitle(currentQuery, page);
+    };
 }
