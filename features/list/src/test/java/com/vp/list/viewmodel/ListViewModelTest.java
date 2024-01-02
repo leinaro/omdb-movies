@@ -40,7 +40,7 @@ public class ListViewModelTest {
         listViewModel.searchMoviesByTitle("title", 1);
 
         //then
-        assertThat(listViewModel.observeMovies().getValue().getListState()).isEqualTo(ListState.ERROR);
+        assertThat(listViewModel.observeMovies().getValue().listState).isEqualTo(ListState.ERROR);
     }
 
     @Test
@@ -76,7 +76,7 @@ public class ListViewModelTest {
 
         //then
 
-        assertThat(listViewModel.observeMovies().getValue().getListState()).isEqualTo(ListState.LOADED);
+        assertThat(listViewModel.observeMovies().getValue().listState).isEqualTo(ListState.LOADED);
         verify(mockObserver).onChanged(SearchResult.success(listItems,0));
     }
 }

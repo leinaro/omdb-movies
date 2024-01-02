@@ -1,4 +1,4 @@
-package com.vp.favorites
+package com.vp.list
 
 import android.content.Intent
 import android.content.res.Configuration
@@ -11,29 +11,26 @@ import android.widget.ProgressBar
 import android.widget.TextView
 import android.widget.ViewAnimator
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.vp.coreui.GridPagingScrollListener
 import com.vp.coreui.ListAdapter
 import com.vp.coreui.ListState
 import com.vp.coreui.SearchResult
+import com.vp.list.viewmodel.ListViewModel
 import dagger.android.support.AndroidSupportInjection
 import javax.inject.Inject
 
-class FavoriteListFragment : Fragment() {
-
-    companion object {
-        const val TAG = "FavoriteListFragment"
-    }
+class ListFragment : Fragment() {
 
     @Inject
     lateinit var factory: ViewModelProvider.Factory
-
-    private lateinit var viewModel: FavoriteListViewModel
+    private var listViewModel: ListViewModel? = null
+    private var currentQuery: String = "Interview"
 
     private lateinit var gridPagingScrollListener: GridPagingScrollListener
     private lateinit var listAdapter: ListAdapter
@@ -46,20 +43,20 @@ class FavoriteListFragment : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         AndroidSupportInjection.inject(this)
-        viewModel = ViewModelProviders.of(this, factory).get<FavoriteListViewModel>(FavoriteListViewModel::class.java)
+        listViewModel = ViewModelProviders.of(this, factory).get(ListViewModel::class.java)
     }
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
-        savedInstanceState: Bundle?,
+        savedInstanceState: Bundle?
     ): View? {
-        return inflater.inflate(R.layout.fragment_favorite_list, container, false)
+        return inflater.inflate(R.layout.fragment_list, container, false)
     }
 
     override fun onViewCreated(
         view: View,
-        savedInstanceState: Bundle?,
+        savedInstanceState: Bundle?
     ) {
         super.onViewCreated(view, savedInstanceState)
         recyclerView = view.findViewById(R.id.recyclerView)
@@ -68,16 +65,33 @@ class FavoriteListFragment : Fragment() {
         errorTextView = view.findViewById(R.id.errorText)
         mSwipeRefreshLayout = view.findViewById<View>(R.id.swiperefresh) as SwipeRefreshLayout
 
+        if (savedInstanceState != null) {
+            currentQuery = savedInstanceState.getString(CURRENT_QUERY, "")
+        }
+
+        initBottomNavigation(view)
         initList()
         initSwipeRefreshLayout()
-
-        viewModel.observeMovies().observe(this.viewLifecycleOwner,
-            Observer<SearchResult?> { searchResult: SearchResult? ->
-                searchResult?.let { handleResult(listAdapter, it) }
-            })
-        viewModel.getFavoriteMovies(1)
-
+        listViewModel?.observeMovies()
+            ?.observe(this.viewLifecycleOwner) { searchResult: SearchResult? ->
+                if (searchResult != null) {
+                    handleResult(listAdapter, searchResult)
+                }
+            }
+        listViewModel?.searchMoviesByTitle(currentQuery, 1)
         showProgressBar()
+    }
+
+    private fun initBottomNavigation(view: View) {
+        val bottomNavigationView = view.findViewById<BottomNavigationView>(R.id.bottomNavigation)
+        bottomNavigationView.setOnNavigationItemSelectedListener { item ->
+            if (item.itemId == R.id.favorites) {
+                val intent = Intent(Intent.ACTION_VIEW, Uri.parse("app://movies/favorites"))
+                intent.setPackage(requireContext().packageName)
+                startActivity(intent)
+            }
+            true
+        }
     }
 
     private fun initList() {
@@ -93,7 +107,7 @@ class FavoriteListFragment : Fragment() {
 
         // Pagination
         gridPagingScrollListener = GridPagingScrollListener(layoutManager)
-       // gridPagingScrollListener.setLoadMoreItemsListener(gridListener)
+        gridPagingScrollListener.setLoadMoreItemsListener(gridListener)
         recyclerView.addOnScrollListener(gridPagingScrollListener)
     }
 
@@ -102,7 +116,7 @@ class FavoriteListFragment : Fragment() {
     }
 
     private fun showList() {
-        viewAnimator.displayedChild = viewAnimator.indexOfChild(recyclerView) ?: 1
+        viewAnimator.displayedChild = viewAnimator.indexOfChild(recyclerView)
         mSwipeRefreshLayout.isRefreshing = false
     }
 
@@ -110,10 +124,9 @@ class FavoriteListFragment : Fragment() {
         viewAnimator.displayedChild = viewAnimator.indexOfChild(errorTextView)
     }
 
-
     private fun handleResult(
         listAdapter: ListAdapter,
-        searchResult: SearchResult,
+        searchResult: SearchResult
     ) {
         when (searchResult.listState) {
             ListState.LOADED -> {
@@ -134,7 +147,7 @@ class FavoriteListFragment : Fragment() {
 
     private fun setItemsData(
         listAdapter: ListAdapter,
-        searchResult: SearchResult,
+        searchResult: SearchResult
     ) {
         listAdapter.setItems(searchResult.items)
         if (searchResult.totalResult <= listAdapter.itemCount) {
@@ -146,17 +159,40 @@ class FavoriteListFragment : Fragment() {
         mSwipeRefreshLayout.setOnRefreshListener { refresh() }
     }
 
-    private var listListener = ListAdapter.OnItemClickListener { imdbID: String ->
-        val intent = Intent(
-            Intent.ACTION_VIEW, Uri.parse("app://movies/details?imdbID=$imdbID")
-        )
-        startActivity(intent)
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putString(CURRENT_QUERY, currentQuery)
+    }
+
+    fun submitSearchQuery(query: String) {
+        currentQuery = query
+        listAdapter.clearItems()
+        listViewModel?.searchMoviesByTitle(query, 1)
+        showProgressBar()
     }
 
     fun refresh() {
         if (!mSwipeRefreshLayout.isRefreshing) {
             mSwipeRefreshLayout.isRefreshing = true
         }
-        viewModel.getFavoriteMovies(1)
+        listViewModel?.searchMoviesByTitle(currentQuery, 1)
+    }
+
+    private var listListener = ListAdapter.OnItemClickListener { imdbID: String ->
+        val intent = Intent(
+            Intent.ACTION_VIEW, Uri.parse(
+            "app://movies/details?imdbID=$imdbID"
+        )
+        )
+        startActivity(intent)
+    }
+    private var gridListener = GridPagingScrollListener.LoadMoreItemsListener { page: Int ->
+        gridPagingScrollListener.markLoading(true)
+        listViewModel?.searchMoviesByTitle(currentQuery, page)
+    }
+
+    companion object {
+        const val TAG = "ListFragment"
+        private const val CURRENT_QUERY = "current_query"
     }
 }
