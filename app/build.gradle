@@ -38,6 +38,9 @@ android {
             enabled = true
         }
     }
+    kapt {
+        generateStubs = true
+    }
 }
 
 dependencies {
@@ -45,6 +48,7 @@ dependencies {
     implementation project(':features:detail')
     implementation project(':features:favorites')
     implementation project(':dagger.addons')
+    implementation project(':data')
 
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$rootProject.kotlin"
 

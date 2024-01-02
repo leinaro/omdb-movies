@@ -36,7 +36,6 @@ public class ListViewModel extends ViewModel {
     }
 
     public void searchMoviesByTitle(@NonNull String title, int page) {
-
         if (page == 1 && !title.equals(currentTitle)) {
             aggregatedItems.clear();
             currentTitle = title;

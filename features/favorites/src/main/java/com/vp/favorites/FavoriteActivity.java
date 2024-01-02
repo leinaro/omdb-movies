@@ -30,4 +30,5 @@ public class FavoriteActivity extends AppCompatActivity implements HasAndroidInj
     public AndroidInjector<Object> androidInjector() {
         return dispatchingActivityInjector;
     }
+
 }

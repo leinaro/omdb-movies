@@ -6,11 +6,11 @@
     android:focusable="true"
     android:foreground="?selectableItemBackground">
 
-    <ImageView
-        android:id="@+id/poster"
-        android:layout_width="200dp"
-        android:layout_height="300dp"
-        android:layout_gravity="center"
-        android:adjustViewBounds="true"
-        android:scaleType="fitCenter" />
+  <ImageView
+      android:id="@+id/poster"
+      android:layout_width="200dp"
+      android:layout_height="300dp"
+      android:layout_gravity="center"
+      android:adjustViewBounds="true"
+      android:scaleType="fitCenter" />
 </FrameLayout>

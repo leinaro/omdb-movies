@@ -5,28 +5,35 @@
     android:layout_height="match_parent"
     tools:context=".FavoriteListFragment">
 
-  <ViewAnimator
-      android:id="@+id/viewAnimator"
+  <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+      xmlns:android="http://schemas.android.com/apk/res/android"
+      android:id="@+id/swiperefresh"
       android:layout_width="match_parent"
       android:layout_height="match_parent">
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/recyclerView"
+    <ViewAnimator
+        android:id="@+id/viewAnimator"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="match_parent">
 
-    <ProgressBar
-        android:id="@+id/progressBar"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center" />
+      <androidx.recyclerview.widget.RecyclerView
+          android:id="@+id/recyclerView"
+          android:layout_width="match_parent"
+          android:layout_height="match_parent" />
 
-    <TextView
-        android:id="@+id/errorText"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:text="@string/data_loading_error" />
-  </ViewAnimator>
+      <ProgressBar
+          android:id="@+id/progressBar"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:layout_gravity="center" />
+
+      <TextView
+          android:id="@+id/errorText"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:layout_gravity="center"
+          android:text="@string/data_loading_error" />
+    </ViewAnimator>
+  </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
 </FrameLayout>

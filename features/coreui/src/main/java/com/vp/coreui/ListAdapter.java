@@ -31,11 +31,11 @@ public class ListAdapter extends RecyclerView.Adapter<ListAdapter.ListViewHolder
     public void onBindViewHolder(@NonNull ListViewHolder holder, int position) {
         ListItem listItem = listItems.get(position);
 
-        if (listItem.getPoster() != null && !NO_IMAGE.equals(listItem.getPoster())) {
+        if (listItem.poster != null && !NO_IMAGE.equals(listItem.poster)) {
             final float density = holder.image.getResources().getDisplayMetrics().density;
             GlideApp
                     .with(holder.image)
-                    .load(listItem.getPoster())
+                    .load(listItem.poster)
                     .override((int) (300 * density), (int) (600 * density))
                     .into(holder.image);
         } else {
@@ -76,7 +76,7 @@ public class ListAdapter extends RecyclerView.Adapter<ListAdapter.ListViewHolder
 
         @Override
         public void onClick(View v) {
-            onItemClickListener.onItemClick(listItems.get(getAdapterPosition()).getImdbID());
+            onItemClickListener.onItemClick(listItems.get(getAdapterPosition()).imdbID);
         }
     }
 

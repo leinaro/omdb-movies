@@ -1,6 +1,7 @@
 package com.vp.movies.di
 
 import android.app.Application
+import com.vp.data.di.DataModule
 import com.vp.detail.di.DetailActivityModule
 import com.vp.favorites.di.FavoriteListActivityModule
 import com.vp.list.di.MovieListActivityModule
@@ -11,7 +12,7 @@ import dagger.android.support.AndroidSupportInjectionModule
 import javax.inject.Singleton
 
 @Singleton
-@Component(modules = [AndroidSupportInjectionModule::class, NetworkModule::class, MovieListActivityModule::class, DetailActivityModule::class, FavoriteListActivityModule::class])
+@Component(modules = [AndroidSupportInjectionModule::class, NetworkModule::class, MovieListActivityModule::class, DetailActivityModule::class, FavoriteListActivityModule::class, DataModule::class])
 interface AppComponent {
 
     @Component.Builder

@@ -28,6 +28,8 @@ android {
 dependencies {
     implementation project(':dagger.addons')
     implementation project(':features:coreui')
+    implementation project(':data')
+
     implementation 'org.jetbrains.kotlin:kotlin-reflect:1.8.0'
 
     //glide

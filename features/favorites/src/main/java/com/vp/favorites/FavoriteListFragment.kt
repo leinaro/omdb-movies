@@ -1,5 +1,8 @@
 package com.vp.favorites
 
+import android.content.Intent
+import android.content.res.Configuration
+import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -8,10 +11,16 @@ import android.widget.ProgressBar
 import android.widget.TextView
 import android.widget.ViewAnimator
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.ViewModelProviders
+import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.vp.coreui.GridPagingScrollListener
 import com.vp.coreui.ListAdapter
+import com.vp.coreui.ListState
+import com.vp.coreui.SearchResult
 import dagger.android.support.AndroidSupportInjection
 import javax.inject.Inject
 
@@ -19,26 +28,25 @@ class FavoriteListFragment : Fragment() {
 
     companion object {
         const val TAG = "FavoriteListFragment"
-        fun newInstance() = FavoriteListFragment()
     }
 
-//    @Inject
-//    var factory: ViewModelProvider.Factory? = null
+    @Inject
+    lateinit var factory: ViewModelProvider.Factory
 
-    lateinit var viewModel: FavoriteListViewModel
+    private lateinit var viewModel: FavoriteListViewModel
 
-    private val gridPagingScrollListener: GridPagingScrollListener? = null
-    private val listAdapter: ListAdapter? = null
-    private var viewAnimator: ViewAnimator? = null
-    private var recyclerView: RecyclerView? = null
-    private var progressBar: ProgressBar? = null
-    private var errorTextView: TextView? = null
+    private lateinit var gridPagingScrollListener: GridPagingScrollListener
+    private lateinit var listAdapter: ListAdapter
+    private lateinit var viewAnimator: ViewAnimator
+    private lateinit var recyclerView: RecyclerView
+    private lateinit var progressBar: ProgressBar
+    private lateinit var errorTextView: TextView
+    private lateinit var mSwipeRefreshLayout: SwipeRefreshLayout
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         AndroidSupportInjection.inject(this)
-//        viewModel = ViewModelProviders.of(this, factory).get<ListViewModel>(ListViewModel::class.java)
-        viewModel = ViewModelProvider(this).get(FavoriteListViewModel::class.java)
+        viewModel = ViewModelProviders.of(this, factory).get<FavoriteListViewModel>(FavoriteListViewModel::class.java)
     }
 
     override fun onCreateView(
@@ -58,21 +66,51 @@ class FavoriteListFragment : Fragment() {
         viewAnimator = view.findViewById(R.id.viewAnimator)
         progressBar = view.findViewById(R.id.progressBar)
         errorTextView = view.findViewById(R.id.errorText)
+        mSwipeRefreshLayout = view.findViewById<View>(R.id.swiperefresh) as SwipeRefreshLayout
+
+        initList()
+        initSwipeRefreshLayout()
+
+        viewModel.observeMovies().observe(this.viewLifecycleOwner,
+            Observer<SearchResult?> { searchResult: SearchResult? ->
+                searchResult?.let { handleResult(listAdapter, it) }
+            })
+        viewModel.getFavoriteMovies(1)
+
+        showProgressBar()
+    }
+
+    private fun initList() {
+        listAdapter = ListAdapter()
+        listAdapter.setOnItemClickListener(listListener)
+        recyclerView.adapter = listAdapter
+        recyclerView.setHasFixedSize(true)
+        val layoutManager = GridLayoutManager(
+            context,
+            if (resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT) 2 else 3
+        )
+        recyclerView.layoutManager = layoutManager
+
+        // Pagination
+        gridPagingScrollListener = GridPagingScrollListener(layoutManager)
+       // gridPagingScrollListener.setLoadMoreItemsListener(gridListener)
+        recyclerView.addOnScrollListener(gridPagingScrollListener)
     }
 
     private fun showProgressBar() {
-        viewAnimator?.displayedChild = viewAnimator!!.indexOfChild(progressBar)
+        viewAnimator.displayedChild = viewAnimator.indexOfChild(progressBar)
     }
 
     private fun showList() {
-        viewAnimator?.displayedChild = viewAnimator?.indexOfChild(recyclerView) ?: 1
+        viewAnimator.displayedChild = viewAnimator.indexOfChild(recyclerView) ?: 1
+        mSwipeRefreshLayout.isRefreshing = false
     }
 
     private fun showError() {
-        viewAnimator?.displayedChild = viewAnimator!!.indexOfChild(errorTextView)
+        viewAnimator.displayedChild = viewAnimator.indexOfChild(errorTextView)
     }
 
-    /*
+
     private fun handleResult(
         listAdapter: ListAdapter,
         searchResult: SearchResult,
@@ -92,5 +130,33 @@ class FavoriteListFragment : Fragment() {
             }
         }
         gridPagingScrollListener.markLoading(false)
-    }*/
+    }
+
+    private fun setItemsData(
+        listAdapter: ListAdapter,
+        searchResult: SearchResult,
+    ) {
+        listAdapter.setItems(searchResult.items)
+        if (searchResult.totalResult <= listAdapter.itemCount) {
+            gridPagingScrollListener.markLastPage(true)
+        }
+    }
+
+    private fun initSwipeRefreshLayout() {
+        mSwipeRefreshLayout.setOnRefreshListener { refresh() }
+    }
+
+    private var listListener = ListAdapter.OnItemClickListener { imdbID: String ->
+        val intent = Intent(
+            Intent.ACTION_VIEW, Uri.parse("app://movies/details?imdbID=$imdbID")
+        )
+        startActivity(intent)
+    }
+
+    fun refresh() {
+        if (!mSwipeRefreshLayout.isRefreshing) {
+            mSwipeRefreshLayout.isRefreshing = true
+        }
+        viewModel.getFavoriteMovies(1)
+    }
 }
