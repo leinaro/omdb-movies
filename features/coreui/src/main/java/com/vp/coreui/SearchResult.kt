@@ -24,11 +24,11 @@ class SearchResult private constructor(
     }
 
     companion object {
-        fun error(): SearchResult {
+        @JvmStatic fun error(): SearchResult {
             return SearchResult(emptyList(), 0, ERROR)
         }
 
-        fun success(
+        @JvmStatic fun success(
             items: List<ListItem>,
             totalResult: Int
         ): SearchResult {

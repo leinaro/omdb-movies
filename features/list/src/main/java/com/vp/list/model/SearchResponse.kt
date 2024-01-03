@@ -5,7 +5,7 @@ import com.vp.coreui.model.ListItem
 
 private const val POSITIVE_RESPONSE = "True"
 
-class SearchResponse (
+open class SearchResponse (
     @SerializedName("Response")
     val response: String,
     @SerializedName("Search")

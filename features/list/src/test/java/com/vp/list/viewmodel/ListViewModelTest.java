@@ -63,9 +63,8 @@ public class ListViewModelTest {
     public void shouldReturnSuccessState() {
         //given
         SearchService searchService = mock(SearchService.class);
-        SearchResponse searchResponse = mock(SearchResponse.class);
         List<ListItem> listItems = new ArrayList<>();
-        when(searchResponse.getSearch()).thenReturn(listItems);
+        SearchResponse searchResponse = new SearchResponse("",listItems,0);
         when(searchService.search(anyString(), anyInt())).thenReturn(Calls.response(searchResponse));
         ListViewModel listViewModel = new ListViewModel(searchService);
         Observer<SearchResult> mockObserver = (Observer<SearchResult>) mock(Observer.class);
